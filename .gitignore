@@ -1,5 +1,12 @@
 # Folders
 /ImageNet
+/logs
+/tblogs
+/trained_model
+/confusion
+
+# json
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
