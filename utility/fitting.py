@@ -2,10 +2,10 @@
 # -*- encoding: utf-8 -*-
 '''
 @File    :   fitting.py
-@Time    :   2019/04/22 13:22:00
+@Time    :   2019/05/12 14:38:43
 @Author  :   Wu 
-@Version :   2.0
-@Desc    :   The `fit` function can shoose loss_func
+@Version :   1.0
+@Desc    :   None
 '''
 
 
@@ -56,14 +56,16 @@ def train(model, train_loader, loss_func, optimizer, device):
     return total_loss / len(train_loader)
 
 
-def fit(model, num_epochs, optimizer, device, train_loader, test_loader, num_classes, lr):
+def fit(model, num_epochs, optimizer, device, train_loader, test_loader, num_classes, lr, lr_decay_type="linear"):
     loss_func = nn.CrossEntropyLoss()
     model.to(device)
     loss_func.to(device)
 
-    # lr_decay_rate = lr / num_epochs
-    lr_decay_period = 20
-    lr_decay_rate = 10
+    if lr_decay_type == "linear":
+        lr_decay_rate = lr / num_epochs
+    else:
+        lr_decay_period = 30
+        lr_decay_rate = 10
 
 
     ######### tensorboard #########
@@ -95,14 +97,16 @@ def fit(model, num_epochs, optimizer, device, train_loader, test_loader, num_cla
         val_accuracy, confusion_validation = utility.evaluation.evaluate(model, test_loader, device, num_classes, test=True)
 
         utility.evaluation.draw_confusion(confusion_training, confusion_validation, epoch + 1)
-        # linear-decay learning rate policy (decreased from 0.5 to 0)
-        # for param_group in optimizer.param_groups:
-        #     param_group['lr'] -= lr_decay_rate
 
         # lr decay
-        if (epoch + 1) % lr_decay_period == 0:
+        if lr_decay_type == "linear":
+            # linear-decay learning rate policy (decreased from 0.5 to 0)
             for param_group in optimizer.param_groups:
-                param_group['lr'] /= lr_decay_rate
+                param_group['lr'] -= lr_decay_rate
+        else:
+            if (epoch + 1) % lr_decay_period == 0:
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] /= lr_decay_rate
 
 
         ######### tensorboard #########

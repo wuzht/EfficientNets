@@ -69,7 +69,7 @@ def draw_confusion(confusion_training, confusion_validation, epoch):
     ax2 = fig.add_subplot(122)
     cax2 = ax2.matshow(confusion_validation)
 
-    plt.savefig('{}{}.png'.format(settings.DIR_confusion, epoch))
+    plt.savefig('{}{}.svg'.format(settings.DIR_confusion, epoch))
 
     # Set up axes
     # ax1.set_xticklabels([''] + all_categories, rotation=90)
