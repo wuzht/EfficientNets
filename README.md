@@ -128,16 +128,19 @@ Training loss curve:
 	</tr>
 </table>
 
+
 Confusion matrices:
 
 <table>
     <tr>
         <td>
             <center><img src="assets/100.svg"></center>
+            <br/>
 			<center>Fig. 5: Confusion matrices of training set (left) and validation set (right).</center>
         </td>
 	</tr>
 </table>
+
 
 
 
