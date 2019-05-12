@@ -3,7 +3,7 @@
 /logs
 /tblogs
 /trained_model
-/confusion
+/confusions
 
 # json
 *.json
