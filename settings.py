@@ -17,6 +17,7 @@ import logger
 ## setttings #############################################
 model_name = 'shufflenetv2_x2_0'
 # model_name= 'shufflenetv2_x0_5'
+# model_name= 'shufflenetv2_x1_0'
 # model_name = 'shufflenetv2_x1_5'
 # model_name = 'imshufflenetv2'
 # model_name = 'resnet34_pre'

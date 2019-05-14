@@ -56,17 +56,10 @@ def train(model, train_loader, loss_func, optimizer, device):
     return total_loss / len(train_loader)
 
 
-def fit(model, num_epochs, optimizer, device, train_loader, test_loader, num_classes, lr, lr_decay_type="linear"):
+def fit(model, num_epochs, optimizer, device, train_loader, val_loader, num_classes, lr, lr_decay_period, lr_decay_rate, lr_decay_type="linear"):
     loss_func = nn.CrossEntropyLoss()
     model.to(device)
     loss_func.to(device)
-
-    if lr_decay_type == "linear":
-        lr_decay_rate = lr / num_epochs
-    else:
-        lr_decay_period = 30
-        lr_decay_rate = 10
-
 
     ######### tensorboard #########
     writer_loss = tf.summary.FileWriter(settings.DIR_tblog + '/train_loss/')
@@ -93,14 +86,14 @@ def fit(model, num_epochs, optimizer, device, train_loader, test_loader, num_cla
         log.logger.info('Average train loss in this epoch: {}'.format(loss))
 
         # evaluate step
-        train_accuracy, confusion_training = utility.evaluation.evaluate(model, train_loader, device, num_classes, test=False)
-        val_accuracy, confusion_validation = utility.evaluation.evaluate(model, test_loader, device, num_classes, test=True)
+        train_accuracy, confusion_training = utility.evaluation.evaluate(model, train_loader, device, num_classes, val=False)
+        val_accuracy, confusion_validation = utility.evaluation.evaluate(model, val_loader, device, num_classes, val=True)
 
         utility.evaluation.draw_confusion(confusion_training, confusion_validation, epoch + 1)
 
         # lr decay
         if lr_decay_type == "linear":
-            # linear-decay learning rate policy (decreased from 0.5 to 0)
+            # linear-decay learning rate policy (decreased from lr to 0)
             for param_group in optimizer.param_groups:
                 param_group['lr'] -= lr_decay_rate
         else:

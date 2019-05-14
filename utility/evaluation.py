@@ -24,7 +24,7 @@ from logger import ImProgressBar
 import settings
 
 
-def evaluate(model, val_loader, device, num_classes, test=True):
+def evaluate(model, val_loader, device, num_classes, val=True):
     confusion_matrix = np.zeros((num_classes, num_classes))
     # evaluate the model
     model.eval()
@@ -55,7 +55,7 @@ def evaluate(model, val_loader, device, num_classes, test=True):
         #     confusion_matrix[i, -2] = np.sum(confusion_matrix[i, :num_classes])
         #     confusion_matrix[i, -1] = confusion_matrix[i, i] / confusion_matrix[i, -2]
         
-        log.logger.info('Accuracy on {} set is {}/{} ({:.4f}%)'.format('test ' if test else 'train', correct, total, 100 * accuracy))
+        log.logger.info('Accuracy on {} set is {}/{} ({:.4f}%)'.format(' val ' if val else 'train', correct, total, 100 * accuracy))
 
         return accuracy, confusion_matrix
 
@@ -69,7 +69,7 @@ def draw_confusion(confusion_training, confusion_validation, epoch):
     ax2 = fig.add_subplot(122)
     cax2 = ax2.matshow(confusion_validation)
 
-    plt.savefig('{}{}.svg'.format(settings.DIR_confusion, epoch))
+    plt.savefig('{}{}.png'.format(settings.DIR_confusion, epoch))
 
     # Set up axes
     # ax1.set_xticklabels([''] + all_categories, rotation=90)

@@ -127,8 +127,6 @@ Training loss curve:
         </td>
 	</tr>
 </table>
-
-
 Confusion matrices:
 
 <table>

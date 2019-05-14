@@ -28,29 +28,33 @@ import models.resnet
 import models.shufflenetv2
 import models.imshuffle
 
-device = torch.device('cuda:5')
+device = torch.device('cuda:4')
 num_classes = 200 
 
 # Hyper parameters
-batch_size = 1024
-num_epochs = 200
+batch_size = 2048
+num_epochs = 800
 lr = 0.5
-lr_decay_type = "linear"
-# lr_decay_type = "divide"
+# lr_decay_type = "linear"
+lr_decay_type = "divide"
+lr_decay_period = 80 if lr_decay_type == "divide" else None
+lr_decay_rate = 2 if lr_decay_type == "divide" else lr / num_epochs
 momentum = 0.9
 weight_decay = 1e-4
 
 # Log the preset parameters and hyper parameters
-log.logger.info("Preset parameters:")
+log.logger.critical("Preset parameters:")
 log.logger.info('model_name: {}'.format(settings.model_name))
 log.logger.info('num_classes: {}'.format(num_classes))
 log.logger.info('device: {}'.format(device))
 
-log.logger.info("Hyper parameters:")
+log.logger.critical("Hyper parameters:")
 log.logger.info('batch_size: {}'.format(batch_size))
 log.logger.info('num_epochs: {}'.format(num_epochs))
 log.logger.info('lr: {}'.format(lr))
 log.logger.info('lr_decay_type: {}'.format(lr_decay_type))
+log.logger.info('lr_decay_period: {}'.format(lr_decay_period))
+log.logger.info('lr_decay_rate: {}'.format(lr_decay_rate))
 log.logger.info('momentum: {}'.format(momentum))
 log.logger.info('weight_decay: {}'.format(weight_decay))
 
@@ -63,7 +67,7 @@ train_transform = transforms.Compose([
     transforms.RandomVerticalFlip(),
     # transforms.RandomCrop(size=55),
     # transforms.Resize(size=64),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+    transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.2),
     transforms.RandomResizedCrop(size=64),
     # transforms.RandomCrop(224),
     transforms.ToTensor(),
@@ -74,6 +78,9 @@ val_transform = transforms.Compose([
     transforms.ToTensor(),
     normalize
 ])
+
+log.logger.critical("train_transform: \n{}".format(train_transform))
+log.logger.critical("val_transform: \n{}".format(val_transform))
 
 train_set = utility.load_dataset.TinyImageNetDataset(train=True, transform=train_transform)
 val_set = utility.load_dataset.TinyImageNetDataset(train=False, transform=val_transform)
@@ -99,27 +106,34 @@ def checkImage(num=5):
     exit()
 # checkImage(5)
 
+def get_model(_model_name, _num_classes):
+    if _model_name == 'shufflenetv2_x0_5':
+        return models.shufflenetv2.shufflenetv2_x0_5(num_classes=_num_classes)
+    elif _model_name == 'shufflenetv2_x1_0':
+        return models.shufflenetv2.shufflenetv2_x1_0(num_classes=_num_classes)
+    elif _model_name == 'shufflenetv2_x1_5':
+        return models.shufflenetv2.shufflenetv2_x1_5(num_classes=_num_classes)
+    elif _model_name == 'shufflenetv2_x2_0':
+        return models.shufflenetv2.shufflenetv2_x2_0(num_classes=_num_classes)
+    elif _model_name == 'imshufflenetv2':
+        return models.imshuffle.shufflenetv2()
+    elif _model_name == 'resnet34_pre': 
+        return models.resnet.resnet34(pretrained=True, num_classes=_num_classes)
+    else:
+        log.logger.error("model_name error!")
+        exit(-1)
+
 
 # Declare and define the model, optimizer and loss_func
-model = None
-if settings.model_name == 'shufflenetv2_x0_5':
-    model = models.shufflenetv2.shufflenetv2_x0_5(num_classes=200)
-elif settings.model_name == 'shufflenetv2_x1_5':
-    model = models.shufflenetv2.shufflenetv2_x1_5(num_classes=200)
-elif settings.model_name == 'shufflenetv2_x2_0':
-    model = models.shufflenetv2.shufflenetv2_x2_0(num_classes=200)
-elif settings.model_name == 'imshufflenetv2':
-    model = models.imshuffle.shufflenetv2()
-else:
-    model = models.resnet.resnet34(pretrained=True, num_classes=200)
-
+model = get_model(settings.model_name, num_classes)
 optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
 # optimizer = torch.optim.Adam(params=model.parameters())
-log.logger.info(model)
+log.logger.critical("optimizer: \n{}".format(optimizer))
+log.logger.critical("model: \n{}".format(model))
 
 try:
     log.logger.critical('Start training')
-    utility.fitting.fit(model, num_epochs, optimizer, device, train_loader, val_loader, num_classes, lr, lr_decay_type=lr_decay_type)
+    utility.fitting.fit(model, num_epochs, optimizer, device, train_loader, val_loader, num_classes, lr, lr_decay_period, lr_decay_rate, lr_decay_type=lr_decay_type)
 except KeyboardInterrupt as e:
     log.logger.error('KeyboardInterrupt: {}'.format(e))
 except Exception as e:
@@ -130,22 +144,11 @@ finally:
         model=model,
         path=settings.PATH_model
     )
-    temp_model = None
-    if settings.model_name == 'shufflenetv2_x0_5':
-        temp_model = models.shufflenetv2.shufflenetv2_x0_5(num_classes=200)
-    elif settings.model_name == 'shufflenetv2_x1_5':
-        temp_model = models.shufflenetv2.shufflenetv2_x1_5(num_classes=200)
-    elif settings.model_name == 'shufflenetv2_x2_0':
-        temp_model = models.shufflenetv2.shufflenetv2_x2_0(num_classes=200)
-    elif settings.model_name == 'imshufflenetv2':
-        temp_model = models.imshuffle.shufflenetv2()
-    else:
-        temp_model = models.resnet.resnet34(pretrained=True, num_classes=200)
     model = utility.save_load.load_model(
-        model=temp_model,
+        model=get_model(settings.model_name, num_classes),
         path=settings.PATH_model,
         device=device
     )
-    utility.evaluation.evaluate(model=model, val_loader=train_loader, device=device, num_classes=num_classes, test=False)
-    utility.evaluation.evaluate(model=model, val_loader=val_loader, device=device, num_classes=num_classes, test=True)
+    utility.evaluation.evaluate(model=model, val_loader=train_loader, device=device, num_classes=num_classes, val=False)
+    utility.evaluation.evaluate(model=model, val_loader=val_loader, device=device, num_classes=num_classes, val=True)
     log.logger.info('Finished')

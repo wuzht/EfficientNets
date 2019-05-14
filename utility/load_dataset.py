@@ -42,7 +42,6 @@ def load_val_info(class_label):
                 "name": line_list[1],
                 "label": class_label[line_list[1]],
                 "bbox": [int(x) for x in line_list[2:]],
-                # "word": 
             })
     
     val = {
