@@ -28,7 +28,7 @@ import models.resnet
 import models.shufflenetv2
 import models.imshuffle
 
-device = torch.device('cuda:4')
+device = torch.device('cuda:5')
 num_classes = 200 
 
 # Hyper parameters
@@ -37,10 +37,10 @@ num_epochs = 800
 lr = 0.5
 # lr_decay_type = "linear"
 lr_decay_type = "divide"
-lr_decay_period = 80 if lr_decay_type == "divide" else None
+lr_decay_period = 40 if lr_decay_type == "divide" else None
 lr_decay_rate = 2 if lr_decay_type == "divide" else lr / num_epochs
 momentum = 0.9
-weight_decay = 1e-4
+weight_decay = 1e-3
 
 # Log the preset parameters and hyper parameters
 log.logger.critical("Preset parameters:")
