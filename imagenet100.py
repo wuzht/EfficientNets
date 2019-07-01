@@ -15,6 +15,7 @@ import torch
 import torchvision.transforms as transforms
 import random
 import numpy as np
+import torchvision.models
 
 # import the files of mine
 import settings
@@ -25,10 +26,9 @@ import utility.fitting
 import utility.evaluation
 import utility.load_dataset
 
-# import models.resnet
-# import models.shufflenetv2
-# import models.imshuffle
-import models.myshufflenetv2
+import models.resnet
+import models.shufflenetv2
+import models.imshuffle
 
 def choose_gpu():
     """
@@ -46,12 +46,11 @@ def choose_gpu():
     return gpu_id
 
 device = torch.device('cuda:{}'.format(choose_gpu()))
-isImageNet100 = True
+num_classes = 100 
 
 # Hyper parameters
-num_classes = 100 if isImageNet100 else 200 
-batch_size = 200 if isImageNet100 else 200
-num_epochs = 150
+batch_size = 200
+num_epochs = 200
 total_step_num = num_epochs * 100000 // batch_size
 lr = 0.5
 # lr_decay_type = "linear"
@@ -64,7 +63,6 @@ weight_decay = 4e-5
 
 # Log the preset parameters and hyper parameters
 log.logger.critical("Preset parameters:")
-log.logger.info('isImageNet100: {}'.format(isImageNet100))
 log.logger.info('model_name: {}'.format(settings.model_name))
 log.logger.info('num_classes: {}'.format(num_classes))
 log.logger.info('device: {}'.format(device))
@@ -77,66 +75,28 @@ log.logger.info('lr_decay_type: {}'.format(lr_decay_type))
 log.logger.info('lr_decay_period: {}'.format(lr_decay_period))
 log.logger.info('lr_decay_rate: {}'.format(lr_decay_rate))
 
-if isImageNet100 is True:
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        normalize
-    ])
-    val_transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        normalize
-    ])
-    train_set = utility.load_dataset.ImageNet100(dataset='train', transform=train_transform)
-    val_set = utility.load_dataset.ImageNet100(dataset='val', transform=val_transform)
-    train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(dataset=val_set, batch_size=batch_size, shuffle=False, num_workers=4)
-
-else:
-    # utility.load_dataset.init_dataset_info()
-    normalize = transforms.Normalize(mean=[0.50199103, 0.50199103, 0.50199103], std=[0.37681857, 0.37681857, 0.37681857])
-    train_transform = transforms.Compose([
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.2),
-        transforms.RandomResizedCrop(size=64),
-        transforms.ToTensor(),
-        normalize
-    ])
-    val_transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=64),
-        transforms.ToTensor(),
-        normalize
-    ])
-    train_set = utility.load_dataset.TinyImageNetDataset(train=True, transform=train_transform)
-    val_set = utility.load_dataset.TinyImageNetDataset(train=False, transform=val_transform)
-    train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(dataset=val_set, batch_size=batch_size, shuffle=False, num_workers=4)
-    # utility.load_dataset.calculate_mean_std(train_loader)
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+train_transform = transforms.Compose([
+    transforms.RandomSizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    normalize
+])
+val_transform = transforms.Compose([
+    transforms.Scale(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    normalize
+])
 
 log.logger.critical("train_transform: \n{}".format(train_transform))
 log.logger.critical("val_transform: \n{}".format(val_transform))
 
-def checkImage(num=5):
-    for _ in range(num):
-        img_index = random.randint(1, 10000)
-        # print(train_set[img_index])
-        img = train_set[img_index][0]
-        print(img.shape)
-        # print(img)
-        # img.save('./{}.JPEG'.format(img_index))
-        # np_img = train_set[img_index][0][0].numpy()
-        # pil_image = Image.fromarray(np_img) # 数据格式为(h, w, c)
-        # print(pil_image)
-        # plt.imshow(np_img, cmap='gray')
-        # plt.show()
-        
-    exit()
-# checkImage(5)
+train_set = utility.load_dataset.ImageNet100(dataset='train', transform=train_transform)
+val_set = utility.load_dataset.ImageNet100(dataset='val', transform=val_transform)
+train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=4)
+val_loader = torch.utils.data.DataLoader(dataset=val_set, batch_size=batch_size, shuffle=False, num_workers=4)
+
 
 def get_model(_model_name, _num_classes):
     if _model_name == 'shufflenetv2_x0_5':
@@ -163,4 +123,3 @@ log.logger.critical("model: \n{}".format(model))
     
 log.logger.critical('Start training')
 utility.fitting.fit(model, num_epochs, optimizer, loss_func, device, train_loader, val_loader, num_classes, total_step_num, lr_decay_period, lr_decay_rate, lr_decay_type=lr_decay_type)
-

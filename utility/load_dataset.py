@@ -130,3 +130,24 @@ class TinyImageNetDataset(Dataset):
 
     def __len__(self):
         return len(self.dataset["images"])
+
+
+class ImageNet100(Dataset):
+    def __init__(self, dataset='train', transform=None):
+        self.transform = transform
+        self.paths, self.labels = [], []
+        label_file = os.path.join('ImageNet', 'ImageNet100', '{}.txt'.format(dataset))
+        with open(label_file, 'r') as f:
+            for line in f.readlines():
+                temp = line.strip().split(' ')
+                self.paths.append(os.path.join('ImageNet', 'ImageNet100') + temp[0])
+                self.labels.append(int(temp[1]))
+    
+    def __getitem__(self, index):
+        img = Image.open(self.paths[index]).convert('RGB')
+        if self.transform != None:
+            img = self.transform(img)
+        return img, self.labels[index]
+
+    def __len__(self):
+        return len(self.labels)

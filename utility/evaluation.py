@@ -24,42 +24,6 @@ from logger import ImProgressBar
 import settings
 
 
-def evaluate(model, val_loader, device, num_classes, val=True):
-    confusion_matrix = np.zeros((num_classes, num_classes))
-    # evaluate the model
-    model.eval()
-    with torch.no_grad():
-        correct = 0
-        total = 0
-        pbar = ImProgressBar(len(val_loader))
-        for ix, (images, targets) in enumerate(val_loader):
-            images = images.to(device)
-            targets = targets.to(device)
-
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, dim=1)
-
-            correct += (predicted == targets).sum().item()
-            total += targets.size(0)
-
-            y_true = [int(x.cpu().numpy()) for x in targets]
-            y_pred = [int(x.cpu().numpy()) for x in predicted]
-            for i in range(len(y_true)):
-                confusion_matrix[y_true[i], y_pred[i]] += 1
-
-            pbar.update(ix)
-        pbar.finish()
-        accuracy = correct / total
-        # accuracy for each class
-        # for i in range(num_classes):
-        #     confusion_matrix[i, -2] = np.sum(confusion_matrix[i, :num_classes])
-        #     confusion_matrix[i, -1] = confusion_matrix[i, i] / confusion_matrix[i, -2]
-        
-        log.logger.info('Accuracy on {} set is {}/{} ({:.4f}%)'.format(' val ' if val else 'train', correct, total, 100 * accuracy))
-
-        return accuracy, confusion_matrix
-
-
 def draw_confusion(confusion_training, confusion_validation, epoch):
     # Set up plot
     fig = plt.figure()

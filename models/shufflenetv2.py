@@ -12,6 +12,8 @@ import functools
 
 import torch
 import torch.nn as nn
+import torch.utils.model_zoo as model_zoo
+from torch.hub import load_state_dict_from_url
 
 __all__ = ['ShuffleNetV2', 'shufflenetv2_x0_5', 'shufflenetv2_x1_0', 'shufflenetv2_x1_5', 'shufflenetv2_x2_0']
 
@@ -129,7 +131,7 @@ class ShuffleNetV2(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        self.fc = nn.Linear(output_channels, num_classes)
+        self.fc_ = nn.Linear(output_channels, num_classes)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -139,7 +141,7 @@ class ShuffleNetV2(nn.Module):
         x = self.stage4(x)
         x = self.conv5(x)
         x = x.mean([2, 3])  # globalpool
-        x = self.fc(x)
+        x = self.fc_(x)
         return x
 
 
@@ -153,6 +155,16 @@ def _shufflenetv2(arch, pretrained, progress, *args, **kwargs):
     #     else:
     #         state_dict = load_state_dict_from_url(model_urls, progress=progress)
     #         model.load_state_dict(state_dict)
+
+
+    if pretrained:
+        model_url = model_urls[arch]
+        # model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+        pretrained_dict = model_zoo.load_url(model_url)
+        model_dict = model.state_dict()
+        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        model_dict.update(pretrained_dict)
+        model.load_state_dict(model_dict)
 
     return model
 

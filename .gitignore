@@ -4,6 +4,7 @@
 /tblogs
 /trained_model
 /confusions
+/history
 
 # json
 *.json
