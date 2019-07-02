@@ -15,10 +15,10 @@ import datetime
 import logger
 
 ## setttings #############################################
-# model_name = 'shufflenetv2_x2_0'
-model_name= 'shufflenetv2_x0_5'
+# model_name= 'shufflenetv2_x0_5'
 # model_name= 'shufflenetv2_x1_0'
 # model_name = 'shufflenetv2_x1_5'
+model_name = 'shufflenetv2_x2_0'
 
 DIR_dataset = './ImageNet/tiny-imagenet-200/'
 DIR_train_set = '{}train/'.format(DIR_dataset)
@@ -46,7 +46,7 @@ if not os.path.exists(DIR_confusions):
     os.makedirs(DIR_confusions)    
 
 
-now_time = 'IN100' + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d-%H%M%S') + '='   # now_time: to name the following variables
+now_time = 'T' + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d-%H%M%S') + '='   # now_time: to name the following variables
 
 PATH_model = '{}{}{}.pt'.format(DIR_trained_model, now_time, model_name)     # to save the model
 DIR_tblog = '{}{}{}'.format(DIR_tblogs, now_time, model_name)    # tensorboard log

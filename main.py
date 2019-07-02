@@ -46,17 +46,19 @@ def choose_gpu():
     return gpu_id
 
 device = torch.device('cuda:{}'.format(choose_gpu()))
-isImageNet100 = True
+isImageNet100 = False
 
 # Hyper parameters
 num_classes = 100 if isImageNet100 else 200 
-batch_size = 200 if isImageNet100 else 200
-num_epochs = 150
+batch_size = 200 if isImageNet100 else 1024
+num_epochs = 150 if isImageNet100 else 200
 total_step_num = num_epochs * 100000 // batch_size
 lr = 0.5
-# lr_decay_type = "linear"
+lr_decay_type = "linear"
 # lr_decay_type = "divide"
-lr_decay_type = "warmup"
+# lr_decay_type = "warmup"
+if lr_decay_type == "warmup":
+    lr = 0.002
 lr_decay_period = 40 if lr_decay_type == "divide" else None
 lr_decay_rate = 2 if lr_decay_type == "divide" else lr / num_epochs
 momentum = 0.9

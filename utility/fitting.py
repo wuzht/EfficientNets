@@ -142,7 +142,8 @@ def fit(model, num_epochs, optimizer, loss_func, device, train_loader, val_loade
         log.logger.info('[Epoch {}/{}] Val   set: Avg loss: {:.4f}, Acc: {}/{} ({:.4f}%), best_val_acc: {:.4f}%, epoch: {}'.format(
             epoch+1, num_epochs, val_loss, val_correct, val_total, val_acc * 100, best_val_acc * 100, best_epoch
         ))
-        if val_acc > best_val_acc:
+        isNewAcc = val_acc > best_val_acc
+        if isNewAcc is True:
             utility.save_load.save_model(model=model, path=settings.PATH_model)
             best_val_acc = val_acc
             best_epoch = epoch
@@ -169,14 +170,14 @@ def fit(model, num_epochs, optimizer, loss_func, device, train_loader, val_loade
 
         # confusion matrices
         figure = utility.confusion.plot_confusion_matrix(train_cm, np.array([str(x) for x in range(num_classes)]))
-        if val_acc > best_val_acc:
+        if isNewAcc is True:
             plt.savefig('{}tb_train.png'.format(settings.DIR_confusion))
         summary = tfplot.figure.to_summary(figure, tag='train')
         writer_cm_train.add_summary(summary, epoch)
         writer_cm_train.flush()
 
         figure = utility.confusion.plot_confusion_matrix(val_cm, np.array([str(x) for x in range(num_classes)]))
-        if val_acc > best_val_acc:
+        if isNewAcc is True:
             plt.savefig('{}tb_test.png'.format(settings.DIR_confusion))
         summary = tfplot.figure.to_summary(figure, tag='test')
         writer_cm_test.add_summary(summary, epoch)
