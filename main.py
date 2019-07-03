@@ -46,12 +46,11 @@ def choose_gpu():
     return gpu_id
 
 device = torch.device('cuda:{}'.format(choose_gpu()))
-isImageNet100 = False
 
 # Hyper parameters
-num_classes = 100 if isImageNet100 else 200 
-batch_size = 200 if isImageNet100 else 1024
-num_epochs = 150 if isImageNet100 else 200
+num_classes = 100 if settings.isImageNet100 else 200 
+batch_size = 200 if settings.isImageNet100 else 1024
+num_epochs = 200 if settings.isImageNet100 else 200
 total_step_num = num_epochs * 100000 // batch_size
 lr = 0.5
 lr_decay_type = "linear"
@@ -66,7 +65,7 @@ weight_decay = 4e-5
 
 # Log the preset parameters and hyper parameters
 log.logger.critical("Preset parameters:")
-log.logger.info('isImageNet100: {}'.format(isImageNet100))
+log.logger.info('settings.isImageNet100: {}'.format(settings.isImageNet100))
 log.logger.info('model_name: {}'.format(settings.model_name))
 log.logger.info('num_classes: {}'.format(num_classes))
 log.logger.info('device: {}'.format(device))
@@ -79,7 +78,7 @@ log.logger.info('lr_decay_type: {}'.format(lr_decay_type))
 log.logger.info('lr_decay_period: {}'.format(lr_decay_period))
 log.logger.info('lr_decay_rate: {}'.format(lr_decay_rate))
 
-if isImageNet100 is True:
+if settings.isImageNet100 is True:
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
@@ -102,10 +101,10 @@ else:
     # utility.load_dataset.init_dataset_info()
     normalize = transforms.Normalize(mean=[0.50199103, 0.50199103, 0.50199103], std=[0.37681857, 0.37681857, 0.37681857])
     train_transform = transforms.Compose([
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.2),
         transforms.RandomResizedCrop(size=64),
+        transforms.RandomHorizontalFlip(),
+        # transforms.RandomVerticalFlip(),
+        # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
         transforms.ToTensor(),
         normalize
     ])

@@ -127,7 +127,7 @@ def fit(model, num_epochs, optimizer, loss_func, device, train_loader, val_loade
     ######### tensorboard #########
 
     for epoch in range(num_epochs):
-        log.logger.info('[Epoch {}/{}] [{}] lr: {}'.format(epoch + 1, num_epochs, settings.now_time, optimizer.param_groups[0]['lr']))
+        log.logger.info('[Epoch {}/{}] [{}] lr: {}'.format(epoch + 1, num_epochs, settings.PATH_log, optimizer.param_groups[0]['lr']))
 
         # train step
         optimizer = train(model, train_loader, loss_func, optimizer, device, total_step_num)
