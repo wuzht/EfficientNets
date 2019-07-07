@@ -171,14 +171,14 @@ def fit(model, num_epochs, optimizer, loss_func, device, train_loader, val_loade
         # confusion matrices
         figure = utility.confusion.plot_confusion_matrix(train_cm, np.array([str(x) for x in range(num_classes)]))
         if isNewAcc is True:
-            plt.savefig('{}tb_train.png'.format(settings.DIR_confusion))
+            plt.savefig('{}tb_train.svg'.format(settings.DIR_confusion))
         summary = tfplot.figure.to_summary(figure, tag='train')
         writer_cm_train.add_summary(summary, epoch)
         writer_cm_train.flush()
 
         figure = utility.confusion.plot_confusion_matrix(val_cm, np.array([str(x) for x in range(num_classes)]))
         if isNewAcc is True:
-            plt.savefig('{}tb_test.png'.format(settings.DIR_confusion))
+            plt.savefig('{}tb_test.svg'.format(settings.DIR_confusion))
         summary = tfplot.figure.to_summary(figure, tag='test')
         writer_cm_test.add_summary(summary, epoch)
         writer_cm_test.flush()

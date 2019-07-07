@@ -25,9 +25,6 @@ import utility.fitting
 import utility.evaluation
 import utility.load_dataset
 
-# import models.resnet
-# import models.shufflenetv2
-# import models.imshuffle
 import models.myshufflenetv2
 
 def choose_gpu():
@@ -109,7 +106,7 @@ else:
         normalize
     ])
     val_transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=64),
+        # transforms.RandomResizedCrop(size=64),
         transforms.ToTensor(),
         normalize
     ])
@@ -121,23 +118,6 @@ else:
 
 log.logger.critical("train_transform: \n{}".format(train_transform))
 log.logger.critical("val_transform: \n{}".format(val_transform))
-
-def checkImage(num=5):
-    for _ in range(num):
-        img_index = random.randint(1, 10000)
-        # print(train_set[img_index])
-        img = train_set[img_index][0]
-        print(img.shape)
-        # print(img)
-        # img.save('./{}.JPEG'.format(img_index))
-        # np_img = train_set[img_index][0][0].numpy()
-        # pil_image = Image.fromarray(np_img) # 数据格式为(h, w, c)
-        # print(pil_image)
-        # plt.imshow(np_img, cmap='gray')
-        # plt.show()
-        
-    exit()
-# checkImage(5)
 
 def get_model(_model_name, _num_classes):
     if _model_name == 'shufflenetv2_x0_5':
