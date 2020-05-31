@@ -3,10 +3,6 @@
 > Title: [ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design](https://arxiv.org/abs/1807.11164)
 >
 > Authors: [Ningning Ma](https://arxiv.org/search/cs?searchtype=author&query=Ma%2C+N), [Xiangyu Zhang](https://arxiv.org/search/cs?searchtype=author&query=Zhang%2C+X), [Hai-Tao Zheng](https://arxiv.org/search/cs?searchtype=author&query=Zheng%2C+H), [Jian Sun](https://arxiv.org/search/cs?searchtype=author&query=Sun%2C+J)
->
-> Name: 伍正涛
->
-> Student ID: 16340246
 
 [TOC]
 
